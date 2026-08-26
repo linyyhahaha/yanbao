@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宝宝七夕快乐</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #fff5f7;
+        }
+
+        /* ===== 滚动图片区域 ===== */
+        .scroll-area {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .scroll-col {
+            flex: 1;
+            position: relative;
+            will-change: transform;
+        }
+
+        .scroll-col .img-card {
+            position: absolute;
+            left: 50%;
+            width: 92%;
+            background-size: cover;
+            background-position: center;
+            border-radius: 14px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+        }
+
+        /* ===== 半透明遮罩 ===== */
+        .bg-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(255, 245, 247, 0.35);
+            z-index: 1;
+        }
+
+        /* ===== 飘落爱心 ===== */
+        .hearts {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 2;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .heart {
+            position: absolute;
+            top: -10%;
+            color: rgba(214, 51, 132, 0.45);
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* ===== 中央文字 ===== */
+        .content {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 45px 55px;
+            border-radius: 24px;
+            box-shadow: 0 12px 48px rgba(214, 51, 132, 0.15);
+            border: 1px solid rgba(214, 51, 132, 0.1);
+        }
+
+        .content h1 {
+            font-size: 2.6rem;
+            color: #d63384;
+            margin-bottom: 18px;
+            animation: glow 3s ease-in-out infinite alternate;
+        }
+
+        .content p {
+            font-size: 1.15rem;
+            line-height: 2.2;
+            color: #8b3a62;
+            opacity: 0;
+            animation: fadeInUp 2s ease-out forwards;
+            animation-delay: 0.8s;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 2px 12px rgba(214,51,132,0.25); }
+            to   { text-shadow: 0 4px 24px rgba(214,51,132,0.55), 0 0 40px rgba(214,51,132,0.15); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(25px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== 音乐按钮 ===== */
+        .music-btn {
+            position: fixed;
+            top: 20px; right: 20px;
+            z-index: 100;
+            width: 48px; height: 48px;
+            border-radius: 50%;
+            background: rgba(214,51,132,0.75);
+            border: none;
+            color: #fff;
+            font-size: 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 14px rgba(214,51,132,0.4);
+            transition: transform 0.3s;
+        }
+        .music-btn:hover { transform: scale(1.1); }
+        .music-btn.playing { animation: spin 3s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ===== 手机适配 ===== */
+        @media (max-width: 600px) {
+            .content {
+                padding: 30px 25px;
+                margin: 0 15px;
+                border-radius: 18px;
+            }
+            .content h1 { font-size: 1.8rem; }
+            .content p  { font-size: 0.95rem; line-height: 2; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 滚动图片区域 -->
+    <div class="scroll-area" id="scrollArea"></div>
+
+    <!-- 遮罩 -->
+    <div class="bg-overlay"></div>
+
+    <!-- 飘落爱心 -->
+    <div class="hearts" id="hearts"></div>
+
+    <!-- 中央文字 -->
+    <div class="content">
+        <h1>💕 宝宝七夕快乐 💕</h1>
+        <p>
+            遇见你是我最幸运的事<br>
+            每一天有你的陪伴都很幸福<br>
+            愿我们的故事永远写不完<br>
+            七夕快乐，我爱你 ❤️
+        </p>
+    </div>
+
+    <!-- 音乐 -->
+    <button class="music-btn" id="musicBtn" onclick="toggleMusic()">🎵</button>
+    <audio id="bgMusic" loop>
+        <source src="music.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        /* ===== 滚动图片配置 ===== */
+        var images = [
+            'photo1.jpg', 'photo2.jpg', 'photo3.jpg',
+            'photo4.jpg', 'photo5.jpg', 'photo6.jpg',
+            'photo7.jpg', 'photo8.jpg', 'photo9.jpg',
+            'photo10.jpg', 'photo11.jpg', 'photo12.jpg',
+            'photo13.jpg', 'photo14.jpg', 'photo15.jpg',
+            'photo16.jpg', 'photo17.jpg', 'photo18.jpg'
+        ];
+
+        var COL_COUNT   = 4;       // 列数
+        var IMG_HEIGHT  = 280;     // 每张图片高度(px)
+        var OVERLAP     = 90;      // 图片重叠量(px)，越大重叠越多
+        var ROTATIONS   = [-4, -2, 0, 2, 4, -3, 1, 3, -1]; // 旋转角度
+
+        var scrollArea = document.getElementById('scrollArea');
+        var columns    = [];
+        var colData    = [];
+
+        // 创建列容器
+        for (var c = 0; c < COL_COUNT; c++) {
+            var col = document.createElement('div');
+            col.className = 'scroll-col';
+            scrollArea.appendChild(col);
+            columns.push(col);
+            colData.push({ offset: 0, speed: 0.4 + Math.random() * 0.5, setHeight: 0 });
+        }
+
+        // 把图片分配到各列（交错分配）
+        var colImages = [];
+        for (var c = 0; c < COL_COUNT; c++) colImages.push([]);
+        for (var i = 0; i < images.length; i++) {
+            colImages[i % COL_COUNT].push(images[i]);
+        }
+
+        // 如果某列图片太少，补充重复图片确保填满
+        for (var c = 0; c < COL_COUNT; c++) {
+            while (colImages[c].length < 4) {
+                colImages[c] = colImages[c].concat(colImages[c]);
+            }
+        }
+
+        // 填充每列的图片
+        for (var c = 0; c < COL_COUNT; c++) {
+            var col = columns[c];
+            var imgs = colImages[c];
+            var y = 0;
+
+            // 原始图片集
+            for (var i = 0; i < imgs.length; i++) {
+                var card = document.createElement('div');
+                card.className = 'img-card';
+                card.style.top  = y + 'px';
+                card.style.height = IMG_HEIGHT + 'px';
+                card.style.backgroundImage = "url('" + imgs[i] + "')";
+                card.style.transform = 'translateX(-50%) rotate(' + ROTATIONS[i % ROTATIONS.length] + 'deg)';
+                col.appendChild(card);
+                y += IMG_HEIGHT - OVERLAP;
+            }
+
+            // 复制一份（用于无缝循环）
+            for (var i = 0; i < imgs.length; i++) {
+                var card = document.createElement('div');
+                card.className = 'img-card';
+                card.style.top  = y + 'px';
+                card.style.height = IMG_HEIGHT + 'px';
+                card.style.backgroundImage = "url('" + imgs[i] + "')";
+                card.style.transform = 'translateX(-50%) rotate(' + ROTATIONS[i % ROTATIONS.length] + 'deg)';
+                col.appendChild(card);
+                y += IMG_HEIGHT - OVERLAP;
+            }
+
+            colData[c].setHeight = y / 2; // 一组图片的总高度
+        }
+
+        // 启动滚动动画
+        function animate() {
+            for (var c = 0; c < COL_COUNT; c++) {
+                colData[c].offset += colData[c].speed;
+                if (colData[c].offset >= colData[c].setHeight) {
+                    colData[c].offset -= colData[c].setHeight;
+                }
+                columns[c].style.transform = 'translateY(' + (-colData[c].offset) + 'px)';
+            }
+            requestAnimationFrame(animate);
+        }
+        requestAnimationFrame(animate);
+
+        /* ===== 飘落爱心 ===== */
+        (function() {
+            var container = document.getElementById('hearts');
+            var symbols = ['❤', '💕', '✨', '💗'];
+            for (var i = 0; i < 20; i++) {
+                var heart = document.createElement('span');
+                heart.className = 'heart';
+                heart.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+                heart.style.left = Math.random() * 100 + '%';
+                heart.style.fontSize = (12 + Math.random() * 18) + 'px';
+                heart.style.animationDuration = (5 + Math.random() * 8) + 's';
+                heart.style.animationDelay = (Math.random() * 10) + 's';
+                container.appendChild(heart);
+            }
+        })();
+
+        /* ===== 音乐控制 ===== */
+        var music = document.getElementById('bgMusic');
+        var btn = document.getElementById('musicBtn');
+        var isPlaying = false;
+
+        function toggleMusic() {
+            if (isPlaying) {
+                music.pause();
+                btn.textContent = '🎵';
+                btn.classList.remove('playing');
+            } else {
+                music.play();
+                btn.textContent = '🎶';
+                btn.classList.add('playing');
+            }
+            isPlaying = !isPlaying;
+        }
+
+        document.addEventListener('click', function() {
+            if (!isPlaying) toggleMusic();
+        }, { once: true });
+    </script>
+
+</body>
+</html>
