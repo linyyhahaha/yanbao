@@ -35,7 +35,7 @@
             left: 50%;
             width: 92%;
             background-size: cover;
-            background-position: center; /* 已修改：从 top 改为 center */
+            background-position: center;
             border-radius: 14px;
             box-shadow: 0 6px 24px rgba(0,0,0,0.12);
         }
@@ -85,13 +85,33 @@
             border-radius: 24px;
             box-shadow: 0 12px 48px rgba(214, 51, 132, 0.15);
             border: 1px solid rgba(214, 51, 132, 0.1);
+            width: 90%;
+            max-width: 450px;
         }
 
+        /* === 重点修改：标题对齐 === */
         .content h1 {
             font-size: 2.6rem;
             color: #d63384;
             margin-bottom: 18px;
             animation: glow 3s ease-in-out infinite alternate;
+            
+            /* 新增：使用弹性布局让爱心和文字垂直居中 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 新增：包裹文字的样式，防止文字换行挤到爱心下面 */
+        .title-text {
+            white-space: nowrap;
+            margin: 0 8px; /* 文字和爱心之间的间距 */
+        }
+
+        /* 新增：爱心的样式调整 */
+        .content h1 .emoji {
+            flex-shrink: 0; /* 防止爱心被压缩 */
+            font-size: 1.2em; /* 稍微调整爱心大小 */
         }
 
         .content p {
@@ -135,11 +155,20 @@
         .music-btn.playing { animation: spin 3s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ===== 手机适配 ===== */
+        /* ===== 手机适配优化 ===== */
         @media (max-width: 600px) {
-            .content { padding: 30px 25px; margin: 0 15px; border-radius: 18px; }
-            .content h1 { font-size: 1.8rem; }
-            .content p { font-size: 0.95rem; line-height: 2; }
+            .content {
+                padding: 30px 20px;
+                width: 85%;
+                border-radius: 18px;
+            }
+            .content h1 {
+                font-size: 2rem; /* 手机上调小标题 */
+            }
+            .content p {
+                font-size: 1rem;
+                line-height: 1.8;
+            }
         }
     </style>
 </head>
@@ -152,7 +181,12 @@
     <div class="hearts" id="hearts"></div>
     <!-- 中央文字 -->
     <div class="content">
-        <h1>💕 宝宝七夕快乐 💕</h1>
+        <!-- 修改：给文字加了 span 包裹，爱心加了 class -->
+        <h1>
+            <span class="emoji">💕</span>
+            <span class="title-text">宝宝七夕快乐</span>
+            <span class="emoji">💕</span>
+        </h1>
         <p>
             遇见你是我最幸运的事<br>
             每一天有你的陪伴都很幸福<br>
@@ -212,7 +246,6 @@
             var col = columns[c];
             var imgs = colImages[c];
             var y = 0;
-
             // 原始图片集
             for (var i = 0; i < imgs.length; i++) {
                 var card = document.createElement('div');
@@ -224,7 +257,6 @@
                 col.appendChild(card);
                 y += IMG_HEIGHT - OVERLAP;
             }
-
             // 复制一份（用于无缝循环）
             for (var i = 0; i < imgs.length; i++) {
                 var card = document.createElement('div');
@@ -272,7 +304,6 @@
         var music = document.getElementById('bgMusic');
         var btn = document.getElementById('musicBtn');
         var isPlaying = false;
-
         function toggleMusic() {
             if (isPlaying) {
                 music.pause();
@@ -285,7 +316,6 @@
             }
             isPlaying = !isPlaying;
         }
-
         document.addEventListener('click', function() {
             if (!isPlaying) toggleMusic();
         }, { once: true });
