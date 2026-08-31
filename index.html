@@ -1,158 +1,267 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>宝宝七夕快乐</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { width: 100vw; height: 100vh; overflow: hidden; font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #fff5f7; }
-        /* ===== 滚动图片区域 ===== */
-        .scroll-area { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; display: flex; overflow: hidden; }
-        .scroll-col { flex: 1; position: relative; will-change: transform; }
-        .scroll-col .img-card { position: absolute; left: 50%; width: 92%; background-size: cover; background-position: center; border-radius: 14px; box-shadow: 0 6px 24px rgba(0,0,0,0.12); }
-        /* ===== 半透明遮罩 ===== */
-        .bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 245, 247, 0.35); z-index: 1; }
-        /* ===== 飘落爱心 ===== */
-        .hearts { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; overflow: hidden; }
-        .heart { position: absolute; top: -10%; color: rgba(214, 51, 132, 0.45); animation: fall linear infinite; }
-        @keyframes fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
-        /* ===== 中央文字 ===== */
-        .content { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; text-align: center; background: rgba(255, 255, 255, 0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); padding: 45px 55px; border-radius: 24px; box-shadow: 0 12px 48px rgba(214, 51, 132, 0.15); border: 1px solid rgba(214, 51, 132, 0.1); width: 90%; max-width: 450px; }
-        /* === 重点修改：标题对齐 === */
-        .content h1 { font-size: 2.6rem; color: #d63384; margin-bottom: 18px; animation: glow 3s ease-in-out infinite alternate; /* 新增：使用弹性布局让爱心和文字垂直居中 */ display: flex; align-items: center; justify-content: center; }
-        /* 新增：包裹文字的样式，防止文字换行挤到爱心下面 */
-        .title-text { white-space: nowrap; margin: 0 8px; /* 文字和爱心之间的间距 */ }
-        /* 新增：爱心的样式调整 */
-        .content h1 .emoji { flex-shrink: 0; /* 防止爱心被压缩 */ font-size: 1.2em; /* 稍微调整爱心大小 */ }
-        .content p { font-size: 1.15rem; line-height: 2.2; color: #8b3a62; opacity: 0; animation: fadeInUp 2s ease-out forwards; animation-delay: 0.8s; }
-        @keyframes glow { from { text-shadow: 0 2px 12px rgba(214,51,132,0.25); } to { text-shadow: 0 4px 24px rgba(214,51,132,0.55), 0 0 40px rgba(214,51,132,0.15); } }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(25px); } to { opacity: 1; transform: translateY(0); } }
-        /* ===== 音乐按钮 ===== */
-        .music-btn { position: fixed; top: 20px; right: 20px; z-index: 100; width: 48px; height: 48px; border-radius: 50%; background: rgba(214,51,132,0.75); border: none; color: #fff; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(214,51,132,0.4); transition: transform 0.3s; }
-        .music-btn:hover { transform: scale(1.1); }
-        .music-btn.playing { animation: spin 3s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        /* ===== 手机适配优化 ===== */
-        @media (max-width: 600px) { .content { padding: 30px 20px; width: 85%; border-radius: 18px; } .content h1 { font-size: 2rem; /* 手机上调小标题 */ } .content p { font-size: 1rem; line-height: 1.8; } }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>宝贝七夕快乐</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 100vw; height: 100vh; overflow: hidden; font-family: "Microsoft YaHei", "PingFang SC", sans-serif; background: #fff5f7; }
+
+/* ===== 背景图 ===== */
+.bg-o {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: url("bg.jpg") center/cover no-repeat;
+  z-index: -2; opacity: 0.15; filter: blur(2px);
+}
+
+/* ===== 滚动图片区域 ===== */
+.scroll-area { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; display: flex; overflow: hidden; }
+.scroll-col { flex: 1; position: relative; will-change: transform; }
+.scroll-col .img-card {
+  position: absolute; left: 50%; width: 92%;
+  background-size: cover; background-position: center;
+  border-radius: 12px; box-shadow: 0 4px 15px rgba(255,107,129,0.25);
+}
+
+@keyframes scrollDown { 0%{transform:translateY(-50%)} 100%{transform:translateY(0)} }
+@keyframes scrollUp { 0%{transform:translateY(0)} 100%{transform:translateY(-50%)} }
+.col-down { animation: scrollDown 60s linear infinite; }
+.col-up { animation: scrollUp 60s linear infinite; }
+
+/* ===== 内容区 ===== */
+.content {
+  position: fixed; z-index: 10; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+}
+.content > * { pointer-events: auto; }
+
+/* ===== 标题区域 ===== */
+.title-box { text-align: center; margin-bottom: 30px; animation: fadeInUp 1s ease-out; }
+.title-box h1 { font-size: 2.2em; color: #ff6b81; text-shadow: 2px 2px 8px rgba(255,107,129,0.3); margin-bottom: 10px; }
+.title-box h1 .emoji { font-size: 1.2em; }
+.title-box .subtitle { font-size: 1.1em; color: #ff8fa3; line-height: 1.8; white-space: pre-line; }
+.title-box .subtitle .red-rose { font-size: 1.3em; }
+
+@keyframes fadeInUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+
+/* ===== 爱心 ===== */
+.heart-wrap { position: fixed; z-index: 100; pointer-events: none; }
+.heart { font-size: 28px; animation: heartbeat 1.2s ease-in-out infinite; display: inline-block; }
+.content p { font-size: 1.15rem; line-height: 2.2; color: #B03A5B; }
+
+@keyframes heartbeat {
+  0%,100% { transform: scale(1); }
+  15% { transform: scale(1.15); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.1); }
+}
+
+/* ===== 飘落爱心 ===== */
+.falling-heart {
+  position: fixed; z-index: 200; pointer-events: none;
+  font-size: 22px; color: #ff4d6d; opacity: 0.85; text-shadow: 0 0 5px rgba(255,77,109,0.6);
+  animation: fall linear forwards;
+}
+@keyframes fall {
+  0% { opacity: 0.9; transform: translateY(0) rotate(0deg) scale(1); }
+  100% { opacity: 0; transform: translateY(100vh) rotate(720deg) scale(0.3); }
+}
+
+/* ===== 音乐按钮 ===== */
+.music-btn {
+  position: fixed; bottom: 20px; right: 20px; z-index: 999;
+  width: 48px; height: 48px; border-radius: 50%; background: rgba(255,107,129,0.9);
+  border: 2px solid #fff; display: flex; align-items: center; justify-content: center;
+  font-size: 22px; color: #fff; cursor: pointer; box-shadow: 0 3px 12px rgba(255,107,129,0.4);
+  transition: transform 0.3s;
+}
+.music-btn.playing { animation: spin 3s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== 照片墙 ===== */
+.gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px auto; max-width: 600px; }
+.gallery img { width: 100%; border-radius: 8px; cursor: pointer; transition: transform 0.3s; }
+.gallery img:hover { transform: scale(1.05); }
+
+/* ===== 放大预览 ===== */
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center; }
+.overlay img { max-width: 90%; max-height: 85vh; border-radius: 12px; }
+.overlay .close-btn { position: absolute; top: 15px; right: 20px; color: #fff; font-size: 32px; cursor: pointer; }
+
+/* ===== 信件 ===== */
+.letter-box {
+  background: #fffdf5; border: 2px solid #f0d9b5; border-radius: 12px;
+  padding: 25px 30px; max-width: 500px; margin: 0 auto 30px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08); position: relative;
+}
+.letter-box .wax-seal {
+  position: absolute; bottom: -18px; right: 30px; font-size: 36px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+.letter-box .letter-title { font-size: 1.4em; color: #c0392b; text-align: center; margin-bottom: 15px; font-weight: bold; }
+.letter-box .letter-body { font-size: 1rem; color: #555; line-height: 2; white-space: pre-line; }
+.letter-box .letter-sign { text-align: right; margin-top: 15px; color: #888; font-style: italic; }
+
+/* ===== 响应式 ===== */
+@media (max-width: 768px) {
+  .title-box h1 { font-size: 1.6em; }
+  .title-box .subtitle { font-size: 0.95em; }
+  .gallery { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .letter-box { padding: 18px 20px; max-width: 90%; }
+  .letter-box .letter-body { font-size: 0.9rem; }
+}
+</style>
 </head>
 <body>
-    <!-- 滚动图片区域 -->
-    <div class="scroll-area" id="scrollArea"></div>
-    <!-- 遮罩 -->
-    <div class="bg-overlay"></div>
-    <!-- 飘落爱心 -->
-    <div class="hearts" id="hearts"></div>
-    <!-- 中央文字 -->
-    <div class="content">
-        <!-- 修改：给文字加了 span 包裹，爱心加了 class -->
-        <h1>
-            <span class="emoji">💕</span>
-            <span class="title-text">宝宝七夕快乐</span>
-            <span class="emoji">💕</span>
-        </h1>
-        <p>
-            遇见你是我最幸运的事<br>
-            每一天有你的陪伴都很幸福<br>
-            愿我们的故事永远写不完<br>
-            七夕快乐，我爱你 ❤️
-        </p>
+
+<!-- 背景 -->
+<div class="bg-o"></div>
+
+<!-- 滚动图片区 -->
+<div class="scroll-area" id="scrollArea"></div>
+
+<!-- 内容区 -->
+<div class="content" id="content">
+  <div>
+    <div class="title-box">
+      <h1><span class="emoji">🌟</span> 宝贝七夕快乐 <span class="emoji">🌟</span></h1>
+      <p class="subtitle">遇见你是我最幸运的事<br>我想把所有的温柔都给你<br>愿我们的故事永远写不完<br><span class="red-rose">🌹</span> 七夕快乐，我爱你</p>
     </div>
-    <!-- 音乐 -->
-    <button class="music-btn" id="musicBtn" onclick="toggleMusic()">🎵</button>
-    <!-- 修改点：添加 muted (静音启动) 和 playsinline (防止iPhone全屏播放) -->
-    <audio id="bgMusic" loop muted playsinline>
-        <source src="music.mp3" type="audio/mpeg">
-    </audio>
 
-    <script>
-        /* ===== 滚动图片配置 ===== */
-        var images = [
-            'photo1.jpg', 'photo2.jpg', 'photo3.jpg', 'photo4.jpg', 'photo5.jpg',
-            'photo6.jpg', 'photo7.jpg', 'photo8.jpg', 'photo9.jpg', 'photo10.jpg',
-            'photo11.jpg', 'photo12.jpg', 'photo13.jpg', 'photo14.jpg', 'photo15.jpg',
-            'photo16.jpg', 'photo17.jpg', 'photo18.jpg'
-        ];
-        var COL_COUNT = 4; // 列数
-        var IMG_HEIGHT = 280; // 每张图片高度(px)
-        var OVERLAP = 90; // 图片重叠量(px)，越大重叠越多
-        var ROTATIONS = [-4, -2, 0, 2, 4, -3, 1, 3, -1]; // 旋转角度
+    <!-- 信件 -->
+    <div class="letter-box">
+      <div class="letter-title">💌 致我最爱的宝贝</div>
+      <div class="letter-body">亲爱的宝贝：
 
-        var scrollArea = document.getElementById('scrollArea');
-        var columns = [];
-        var colData = [];
+这是我们在一起的又一个七夕。回想起我们在一起的每一天，每一个笑容，每一次拥抱，都让我觉得无比幸福。
 
-        // 创建列容器
-        for (var c = 0; c < COL_COUNT; c++) {
-            var col = document.createElement('div');
-            col.className = 'scroll-col';
-            scrollArea.appendChild(col);
-            columns.push(col);
-            colData.push({ offset: 0, speed: 0.4 + Math.random() * 0.5, setHeight: 0 });
-        }
+你是我生命中最美好的礼物，我想牵着你的手，走过每一个春夏秋冬。
 
-        // 把图片分配到各列（交错分配）
-        var colImages = [];
-        for (var c = 0; c < COL_COUNT; c++) colImages.push([]);
-        for (var i = 0; i < images.length; i++) {
-            colImages[i % COL_COUNT].push(images[i]);
-        }
+七夕快乐，我爱你，不止今天，而是每一天。</div>
+      <div class="letter-sign">—— 永远爱你的老公</div>
+      <div class="wax-seal">❤️</div>
+    </div>
 
-        // 如果某列图片太少，补充重复图片确保填满
-        for (var c = 0; c < COL_COUNT; c++) {
-            while (colImages[c].length < 4) {
-                colImages[c] = colImages[c].concat(colImages[c]);
-            }
-        }
+    <!-- 照片墙 -->
+    <div class="gallery" id="gallery"></div>
+  </div>
+</div>
 
-        // 填充每列的图片
-        for (var c = 0; c < COL_COUNT; c++) {
-            var col = columns[c];
-            var imgs = colImages[c];
-            var y = 0;
-            // 原始图片集
-            for (var i = 0; i < imgs.length; i++) {
-                var card = document.createElement('div');
-                card.className = 'img-card';
-                card.style.top = y + 'px';
-                card.style.height = IMG_HEIGHT + 'px';
-                card.style.backgroundImage = "url('" + imgs[i] + "')";
-                card.style.transform = 'translateX(-50%) rotate(' + ROTATIONS[i % ROTATIONS.length] + 'deg)';
-                col.appendChild(card);
-                y += IMG_HEIGHT - OVERLAP;
-            }
-            // 复制一份（用于无缝循环）
-            for (var i = 0; i < imgs.length; i++) {
-                var card = document.createElement('div');
-                card.className = 'img-card';
-                card.style.top = y + 'px';
-                card.style.height = IMG_HEIGHT + 'px';
-                card.style.backgroundImage = "url('" + imgs[i] + "')";
-                card.style.transform = 'translateX(-50%) rotate(' + ROTATIONS[i % ROTATIONS.length] + 'deg)';
-                col.appendChild(card);
-                y += IMG_HEIGHT - OVERLAP;
-            }
-            colData[c].setHeight = y / 2; // 一组图片的总高度
-        }
+<!-- 音乐按钮 -->
+<button class="music-btn" id="musicBtn" title="点击播放音乐">🎵</button>
 
-        // 启动滚动动画
-        function animate() {
-            for (var c = 0; c < COL_COUNT; c++) {
-                colData[c].offset += colData[c].speed;
-                if (colData[c].offset >= colData[c].setHeight) {
-                    colData[c].offset -= colData[c].setHeight;
-                }
-                columns[c].style.transform = 'translateY(' + (-colData[c].offset) + 'px)';
-            }
-            requestAnimationFrame(animate);
-        }
-        requestAnimationFrame(animate);
+<!-- 飘落爱心容器 -->
+<div id="heartsContainer"></div>
 
-        /* ===== 飘落爱心 ===== */
-        (function() {
-            var container = document.getElementById('hearts');
-            var symbols = ['❤', '💕', '✨', '💗'];
-            for (var i = 0; i < 20; i++) {
-                var heart = document.createElement('span');
-                heart.className = 'heart';
+<!-- 照片预览 -->
+<div class="overlay" id="overlay" onclick="closePreview()">
+  <span class="close-btn">&times;</span>
+  <img id="previewImg" src="" alt="预览">
+</div>
+
+<!-- 音频 -->
+<audio id="bgMusic" loop preload="auto">
+  <source src="music.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+// ===== 照片配置 =====
+const PHOTOS = [];
+for(let i=1; i<=18; i++) PHOTOS.push('photo'+i+'.jpg');
+
+// ===== 滚动区域渲染 =====
+const scrollArea = document.getElementById('scrollArea');
+const colsCount = 3;
+const photosPerCol = Math.ceil(PHOTOS.length / colsCount);
+const colHeights = [];
+
+for (let i = 0; i < colsCount; i++) {
+  const col = document.createElement('div');
+  col.className = 'scroll-col ' + (i % 2 === 0 ? 'col-down' : 'col-up');
+  const frag = document.createDocumentFragment();
+
+  // 渲染两轮保证无缝
+  for (let r = 0; r < 2; r++) {
+    for (let j = 0; j < photosPerCol; j++) {
+      const idx = (i * photosPerCol + j) % PHOTOS.length;
+      const card = document.createElement('div');
+      card.className = 'img-card';
+      card.style.backgroundImage = `url('${PHOTOS[idx]}')`;
+      const h = 180 + Math.random() * 100;
+      card.style.height = h + 'px';
+      card.style.top = (r * photosPerCol + j) * 220 + 80 + 'px';
+      frag.appendChild(card);
+    }
+  }
+  col.appendChild(frag);
+  scrollArea.appendChild(col);
+
+  // 记录列高度用于速度微调
+  const totalH = photosPerCol * 220;
+  colHeights.push(totalH);
+  const dur = Math.max(35, 55 - colHeights[i] / 30);
+  col.style.animationDuration = dur + 's';
+}
+
+// ===== 照片墙渲染 =====
+const galleryEl = document.getElementById('gallery');
+PHOTOS.forEach(src => {
+  const img = document.createElement('img');
+  img.src = src;
+  img.alt = '照片';
+  img.onclick = () => {
+    document.getElementById('previewImg').src = src;
+    document.getElementById('overlay').style.display = 'flex';
+  };
+  galleryEl.appendChild(img);
+});
+
+function closePreview() {
+  document.getElementById('overlay').style.display = 'none';
+}
+
+// ===== 音乐控制（点击按钮必出声） =====
+const audio = document.getElementById('bgMusic');
+const musicBtn = document.getElementById('musicBtn');
+let isPlaying = false;
+
+musicBtn.addEventListener('click', function() {
+  if (!isPlaying) {
+    audio.play().then(() => {
+      isPlaying = true;
+      musicBtn.classList.add('playing');
+      musicBtn.textContent = '🎶';
+    }).catch(e => {
+      console.log('播放失败:', e);
+      alert('请再点一次音乐按钮试试~');
+    });
+  } else {
+    audio.pause();
+    isPlaying = false;
+    musicBtn.classList.remove('playing');
+    musicBtn.textContent = '🎵';
+  }
+});
+
+// ===== 飘落爱心 =====
+const heartsContainer = document.getElementById('heartsContainer');
+function createFallingHeart() {
+  const heart = document.createElement('div');
+  heart.className = 'falling-heart';
+  heart.textContent = '❤';
+  const startX = Math.random() * window.innerWidth;
+  const size = 14 + Math.random() * 16;
+  const dur = 4 + Math.random() * 4;
+  heart.style.left = startX + 'px';
+  heart.style.top = '-30px';
+  heart.style.fontSize = size + 'px';
+  heart.style.animationDuration = dur + 's';
+  heartsContainer.appendChild(heart);
+  setTimeout(() => heart.remove(), dur * 1000);
+}
+setInterval(createFallingHeart, 800);
+</script>
+</body>
+</html>
