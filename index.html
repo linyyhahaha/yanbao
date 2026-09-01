@@ -3,146 +3,250 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>和宝嘟200天纪念！</title>
+  <title>宝宝200天纪念</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
+
     body {
       width: 100vw; height: 100vh; overflow: hidden;
-      background: #fcf2f5; /* 淡淡的粉色背景 */
+      background: #fce4ec;
       font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
     }
 
-    /* ===== 拍立得照片墙 ===== */
-    .photo-wall {
-      position: absolute; width: 100%; height: 100%; z-index: 1;
+    /* ===== 照片滚动容器 ===== */
+    .scroll-wrapper {
+      position: absolute;
+      width: 100%; height: 100%;
+      overflow: hidden;
+      z-index: 1;
     }
 
+    .scroll-track {
+      position: absolute;
+      width: 100%;
+      animation: scrollUp 40s linear infinite;
+    }
+
+    @keyframes scrollUp {
+      0%   { transform: translateY(0); }
+      100% { transform: translateY(-50%); }
+    }
+
+    .scroll-track:hover {
+      animation-play-state: paused;
+    }
+
+    /* ===== 单张照片 ===== */
     .photo {
       position: absolute;
       background: #fff;
-      padding: 8px 8px 25px 8px; /* 底部留白多一点，像拍立得 */
-      border: 6px solid #fff;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      padding: 8px 8px 28px 8px;
+      border: 1px solid #eee;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
       border-radius: 4px;
-      width: 280px; /* 默认照片宽度，可根据需要微调 */
-      transition: transform 0.3s ease, z-index 0.3s;
+      width: 260px;
+      transition: transform 0.4s, box-shadow 0.3s;
       cursor: pointer;
     }
 
     .photo img {
-      width: 100%; height: 260px; object-fit: cover; display: block;
+      width: 100%; height: 230px;
+      object-fit: cover; display: block;
       border-radius: 2px;
     }
 
     .photo:hover {
-      z-index: 10 !important;
       transform: scale(1.1) rotate(0deg) !important;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.25);
+      z-index: 999 !important;
     }
 
-    /* 18张照片的散落位置与旋转角度 */
-    /* 第一排 */
-    .photo:nth-child(1) { top: -2%; left: 2%; transform: rotate(-5deg); z-index: 2; }
-    .photo:nth-child(2) { top: -5%; left: 28%; transform: rotate(3deg); z-index: 1; }
-    .photo:nth-child(3) { top: -3%; left: 55%; transform: rotate(-2deg); z-index: 3; }
-    .photo:nth-child(4) { top: 0%; left: 82%; transform: rotate(6deg); z-index: 2; }
+    .photo.hidden { display: none !important; }
 
-    /* 第二排 */
-    .photo:nth-child(5) { top: 28%; left: -5%; transform: rotate(4deg); z-index: 2; }
-    .photo:nth-child(6) { top: 25%; left: 22%; transform: rotate(-6deg); z-index: 1; }
-    .photo:nth-child(7) { top: 30%; left: 48%; transform: rotate(2deg); z-index: 4; }
-    .photo:nth-child(8) { top: 26%; left: 75%; transform: rotate(-3deg); z-index: 2; }
-
-    /* 第三排 */
-    .photo:nth-child(9) { top: 55%; left: 5%; transform: rotate(-3deg); z-index: 3; }
-    .photo:nth-child(10) { top: 58%; left: 32%; transform: rotate(5deg); z-index: 2; }
-    .photo:nth-child(11) { top: 52%; left: 60%; transform: rotate(-7deg); z-index: 1; }
-    .photo:nth-child(12) { top: 56%; left: 85%; transform: rotate(4deg); z-index: 3; }
-
-    /* 第四排 */
-    .photo:nth-child(13) { top: 82%; left: -2%; transform: rotate(7deg); z-index: 1; }
-    .photo:nth-child(14) { top: 85%; left: 25%; transform: rotate(-2deg); z-index: 2; }
-    .photo:nth-child(15) { top: 80%; left: 50%; transform: rotate(4deg); z-index: 3; }
-    .photo:nth-child(16) { top: 88%; left: 78%; transform: rotate(-5deg); z-index: 2; }
-    
-    /* 补充两张散落 */
-    .photo:nth-child(17) { top: 15%; left: 42%; transform: rotate(8deg); z-index: 1; width: 240px; }
-    .photo:nth-child(17) img { height: 220px; }
-    .photo:nth-child(18) { top: 70%; left: 15%; transform: rotate(-8deg); z-index: 1; width: 240px; }
-    .photo:nth-child(18) img { height: 220px; }
-
-    /* 屏幕缩小适配（手机端） */
-    @media (max-width: 768px) {
-      .photo { width: 180px; }
-      .photo img { height: 160px; }
-      .photo:nth-child(17), .photo:nth-child(18) { width: 160px; }
-      .photo:nth-child(17) img, .photo:nth-child(18) img { height: 140px; }
-    }
-
-    /* ===== 中间祝福卡片 ===== */
+    /* ===== 中间固定卡片 ===== */
     .card-container {
-      position: absolute;
+      position: fixed;
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
       z-index: 100;
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 16px;
-      padding: 40px 50px;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 45px 55px;
       text-align: center;
-      box-shadow: 0 10px 40px rgba(220, 50, 80, 0.15);
+      box-shadow: 0 12px 48px rgba(220, 50, 80, 0.15);
       border: 2px solid #fff;
-      max-width: 90%;
+      max-width: 85%;
+      pointer-events: none;
     }
 
     .card-container h2 {
       color: #d6335f;
-      font-size: 28px;
-      margin-bottom: 20px;
+      font-size: 30px;
+      margin-bottom: 22px;
       letter-spacing: 2px;
     }
 
     .card-container p {
       color: #555;
-      font-size: 16px;
-      line-height: 2;
+      font-size: 17px;
+      line-height: 2.2;
       margin-bottom: 8px;
     }
 
     .heart { color: #d6335f; }
+
+    /* ===== 音乐播放按钮 ===== */
+    .music-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      z-index: 200;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ff6b9d, #d6335f);
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(214, 51, 95, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .music-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 28px rgba(214, 51, 95, 0.6);
+    }
+
+    .music-btn svg {
+      width: 26px;
+      height: 26px;
+      fill: #fff;
+    }
+
+    .music-btn.playing {
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 4px 20px rgba(214, 51, 95, 0.4); }
+      50% { box-shadow: 0 4px 30px rgba(214, 51, 95, 0.7); }
+    }
+
+    .music-btn .pause-icon { display: none; }
+    .music-btn.playing .play-icon { display: none; }
+    .music-btn.playing .pause-icon { display: block; }
+
+    /* 手机端 */
+    @media (max-width: 768px) {
+      .photo { width: 160px; }
+      .photo img { height: 140px; }
+      .card-container { padding: 30px 25px; }
+      .card-container h2 { font-size: 22px; }
+      .card-container p { font-size: 14px; }
+      .music-btn { width: 48px; height: 48px; bottom: 20px; right: 20px; }
+      .music-btn svg { width: 22px; height: 22px; }
+    }
   </style>
 </head>
 <body>
 
-  <!-- 18张散落照片 -->
-  <div class="photo-wall">
-    <div class="photo"><img src="photo1.jpg" alt=""></div>
-    <div class="photo"><img src="photo2.jpg" alt=""></div>
-    <div class="photo"><img src="photo3.jpg" alt=""></div>
-    <div class="photo"><img src="photo4.jpg" alt=""></div>
-    <div class="photo"><img src="photo5.jpg" alt=""></div>
-    <div class="photo"><img src="photo6.jpg" alt=""></div>
-    <div class="photo"><img src="photo7.jpg" alt=""></div>
-    <div class="photo"><img src="photo8.jpg" alt=""></div>
-    <div class="photo"><img src="photo9.jpg" alt=""></div>
-    <div class="photo"><img src="photo10.jpg" alt=""></div>
-    <div class="photo"><img src="photo11.jpg" alt=""></div>
-    <div class="photo"><img src="photo12.jpg" alt=""></div>
-    <div class="photo"><img src="photo13.jpg" alt=""></div>
-    <div class="photo"><img src="photo14.jpg" alt=""></div>
-    <div class="photo"><img src="photo15.jpg" alt=""></div>
-    <div class="photo"><img src="photo16.jpg" alt=""></div>
-    <div class="photo"><img src="photo17.jpg" alt=""></div>
-    <div class="photo"><img src="photo18.jpg" alt=""></div>
+  <!-- 照片滚动背景 -->
+  <div class="scroll-wrapper">
+    <div class="scroll-track" id="scrollTrack"></div>
   </div>
 
-  <!-- 中间祝福卡片 -->
+  <!-- 中间固定卡片 -->
   <div class="card-container">
-    <h2><span class="heart">❤️</span> 和宝嘟200天纪念！ <span class="heart">❤️</span></h2>
+    <h2><span class="heart">❤️</span> 宝宝200天纪念！ <span class="heart">❤️</span></h2>
     <p>遇见你是我最幸运的事</p>
     <p>每一天有你的陪伴都很幸福</p>
     <p>我们在一起200天啦！</p>
-    <p>愿我们的故事永远写不完 <span class="heart">❤️</span></p>
+    <p>愿我们的故事永远写不完<span class="heart">❤️</span></p>
   </div>
+
+  <!-- 音乐播放按钮 -->
+  <button class="music-btn" id="musicBtn" onclick="toggleMusic()">
+    <!-- 播放图标 -->
+    <svg class="play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    <!-- 暂停图标 -->
+    <svg class="pause-icon" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+  </button>
+
+  <!-- 背景音乐，把你的音乐文件放在同目录下，改下面的 src -->
+  <audio id="bgMusic" loop>
+    <source src="bgm.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    // ===== 音乐控制 =====
+    const bgMusic = document.getElementById('bgMusic');
+    const musicBtn = document.getElementById('musicBtn');
+
+    function toggleMusic() {
+      if (bgMusic.paused) {
+        bgMusic.play();
+        musicBtn.classList.add('playing');
+      } else {
+        bgMusic.pause();
+        musicBtn.classList.remove('playing');
+      }
+    }
+
+    // ===== 照片滚动 =====
+    const photos = [
+      'photo1.jpg', 'photo2.jpg', 'photo3.jpg',
+      'photo4.jpg', 'photo5.jpg', 'photo6.jpg',
+      'photo7.jpg', 'photo8.jpg', 'photo9.jpg',
+      'photo10.jpg', 'photo11.jpg', 'photo12.jpg',
+      'photo13.jpg', 'photo14.jpg', 'photo15.jpg',
+      'photo16.jpg', 'photo17.jpg', 'photo18.jpg'
+    ];
+
+    const layout = [
+      { left: '2%',  rotate: -6 },
+      { left: '18%', rotate: 4 },
+      { left: '35%', rotate: -3 },
+      { left: '52%', rotate: 5 },
+      { left: '68%', rotate: -4 },
+      { left: '83%', rotate: 7 },
+    ];
+
+    const rowHeight = 320;
+    const track = document.getElementById('scrollTrack');
+
+    function buildPhotos(topOffset) {
+      photos.forEach((src, i) => {
+        const row = Math.floor(i / layout.length);
+        const col = i % layout.length;
+        const pos = layout[col];
+
+        const div = document.createElement('div');
+        div.className = 'photo';
+        div.style.left = pos.left;
+        div.style.top = (topOffset + row * rowHeight) + 'px';
+        div.style.transform = `rotate(${pos.rotate}deg)`;
+        div.style.zIndex = Math.floor(Math.random() * 3) + 1;
+
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = '';
+        img.onerror = function() {
+          this.parentElement.classList.add('hidden');
+        };
+
+        div.appendChild(img);
+        track.appendChild(div);
+      });
+    }
+
+    buildPhotos(20);
+    const totalRows = Math.ceil(photos.length / layout.length);
+    buildPhotos(20 + totalRows * rowHeight + 40);
+    track.style.height = ((totalRows * rowHeight + 40) * 2 + 60) + 'px';
+  </script>
 
 </body>
 </html>
